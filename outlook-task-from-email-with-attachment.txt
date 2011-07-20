@@ -15,7 +15,10 @@ Sub ProcessMailItemIntoTask(Item As Outlook.MailItem)
     
     ’ Trim @TASK: off the line
     Dim intKeyWordPos As Integer
+
+    ’ CHANGE "@task" TO WHATEVER YOU WANT AS THE MAGIC WORD
     intKeyWordPos = InStr(1, strTaskName, “@task “, vbTextCompare)
+
     If intKeyWordPos = 1 Then
         strTaskName = Trim(Right(strTaskName, Len(strTaskName) - 5))
     End If
@@ -25,7 +28,7 @@ Sub ProcessMailItemIntoTask(Item As Outlook.MailItem)
     Set objTask = Application.CreateItem(olTaskItem)
     objTask.Subject = strTaskName
     
-    ‘Handle attachments to email, if necessary
+    ‘ Handle attachments to email, if necessary
     If Item.Attachments.Count > 0 Then
         Dim attCount As Integer
         attCount = 0
@@ -38,10 +41,12 @@ Sub ProcessMailItemIntoTask(Item As Outlook.MailItem)
 
             attCount = attCount + 1
 
-            ‘MsgBox oMessage.Attachments.Item(attCount).type
+            ‘ MsgBox oMessage.Attachments.Item(attCount).type
             If Not Item.Attachments.Item(attCount).Type = 6 Then
 
-                attPath = “Q:\Email_Attachments"
+		‘ SET THE FOLLOWING VARIABLE TO WHERE YOU WANT ATTACHMENTS STORED FOR TASKS
+                attPath = “c:\Email_Attachments"
+
                 attName = Item.Attachments.Item(attCount).FileName
 
                 Item.Attachments.Item(attCount).SaveAsFile (attPath & attName)
@@ -49,7 +54,7 @@ Sub ProcessMailItemIntoTask(Item As Outlook.MailItem)
             Else
                 MsgBox (“This type of attachment cannot be embedded in the task.” & _
                 vbCrLf & vbCrLf & _
-                “However, it is still in the attached Original Message.”)
+                “However, it is still in the original email message.”)
             End If
         Next
     End If
