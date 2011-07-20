@@ -20,6 +20,7 @@ This script is provided without any warranty, use at your own risk. If you would
 How To Use The Script
 ---------------------
 * Download the script
+* Set the attachment location in the script (it's currently set as C:\Email_Attachments)
 * Open your Outlook VBA Editor (at Tools->Macros->Macros in Outlook 2000)
 * Copy the script into Project1 (this document should open when you load the macro editor -- do not overwrite any other information in Project1 unless you know why you're overwriting it)
 * Save the script and test it!
