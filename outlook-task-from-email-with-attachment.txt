@@ -1,0 +1,66 @@
+Sub ProcessMailItemIntoTask(Item As Outlook.MailItem)
+    Dim strTaskName As String
+    strTaskName = Trim(Item.Subject)
+    strTaskBody = Trim(Item.Body)
+    
+    If Len(strTaskName) < 1 Then
+        ’ No subject - use the first line of the body
+        strTaskName = Trim(Item.Body)
+        Dim intCrLfPos As Integer
+        intCrLfPos = InStr(1, strTaskName, Constants.vbCrLf, vbTextCompare)
+        If intCrLfPos > 0 Then
+            strTaskName = Trim(Left(strTaskName, intCrLfPos - 1))
+        End If
+    End If
+    
+    ’ Trim @TASK: off the line
+    Dim intKeyWordPos As Integer
+    intKeyWordPos = InStr(1, strTaskName, “@task “, vbTextCompare)
+    If intKeyWordPos = 1 Then
+        strTaskName = Trim(Right(strTaskName, Len(strTaskName) - 5))
+    End If
+    
+    ’ Create the task
+    Dim objTask As Outlook.TaskItem
+    Set objTask = Application.CreateItem(olTaskItem)
+    objTask.Subject = strTaskName
+    
+    ‘Handle attachments to email, if necessary
+    If Item.Attachments.Count > 0 Then
+        Dim attCount As Integer
+        attCount = 0
+
+        ‘Copy Attachments to new task
+        For Each Attachment In Item.Attachments
+            Dim oAttachment As Outlook.Attachment
+            Dim attPath As String
+            Dim attName As String
+
+            attCount = attCount + 1
+
+            ‘MsgBox oMessage.Attachments.Item(attCount).type
+            If Not Item.Attachments.Item(attCount).Type = 6 Then
+
+                attPath = “Q:\Email_Attachments"
+                attName = Item.Attachments.Item(attCount).FileName
+
+                Item.Attachments.Item(attCount).SaveAsFile (attPath & attName)
+                objTask.Attachments.Add (attPath & attName)
+            Else
+                MsgBox (“This type of attachment cannot be embedded in the task.” & _
+                vbCrLf & vbCrLf & _
+                “However, it is still in the attached Original Message.”)
+            End If
+        Next
+    End If
+    
+    ’ Set objAttachments = objTask.Attachments
+    ’ objAttachments.Add Item.Attachments, olByValue
+    
+    objTask.Body = strTaskBody
+    
+    objTask.StartDate = Item.ReceivedTime
+    objTask.Save
+    Set objTask = Nothing
+    
+End Sub
